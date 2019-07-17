@@ -4,16 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>阴阳师 官网 图片跳动</title>
+    <title>阴阳师幽灵边框特效</title>
+    <style>
+    /* div+css+媒体查询*/
+    #father {
+        width: 100%; 
+        padding: 200px 0; 
+        background-image: url("imges/31.jpg");
+        box-sizing: border-box;     /* 媒体查询布局 经常要定义box-sizing */
+    }
+    #one, #two, #three, #four {
+        float: left;
+    }
+    #one :hover, #two :hover, #three :hover, #four :hover {
+        transform: translateY(-10px);
+    }
+    #one img, #two img, #three img, #four img {
+        width: 100%;
+        transition: 0.5s;
+    }
+    .top { 
+        width: 100%;
+        text-align: center; 
+        margin: 0 auto;
+    }
+        /* 难点：清除浮动  一个都不能少*/
+     .top::after {
+         content: "";
+         display: block;
+         clear: both;
+     }
+    @media screen and (min-width:992px){
+        #one{width: 25%;}
+        #two{width: 25%;}
+        #three{width: 25%;}
+        #four{width: 25%;}
+    }
+    @media screen and (min-width:768px) and (max-width:991px){
+        #one{width: 50%;}
+        #two{width: 50%;}
+        #three{width: 50%;}
+        #four{width: 50%;}
+    }
+    @media screen and (max-width:767){
+        #one{width: 100%;}
+        #two{width: 100%;}
+        #three{width: 100%;}
+        #four{width: 100%;}
+    }
+    /* box */
+    div#box {
+        display: none;
+        /* 绝对定位 脱离文档流  元素定位居中方法 */
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+    }
+    #box img { width: 100% }
+    /* 用ul写布局 */
+    .rolelist {
+        width: 1480px;
+        height: 500px;
+        margin: 50px auto;
+        /* background-color: #ace; */
+    }
+    .lists { 
+        height: 100%;
+        list-style: none; 
+        margin: 0; padding: 0;
+        display: flex;
+        flex-wrap: wrap;  /* 强制换行 */
+        justify-content: space-around;   /* 主轴排列方式 */
+        align-items: center;  /* 交叉轴中点对齐 */
+        background-image: url("imges/31.jpg")
+    }
+    .list-item {
+        width: 430px; height: 210px;
+        /* background-color: #fac; */
+        background-image: url("imges/25.png") ;
+        background-repeat: no-repeat;    /* 不平铺  */
+        background-position: 50% 100%;  /* 背景图片位置x y */
+        /* background: #fac url("imges/28.png") no-repeat 50% 50%;    复合写法*/
+        transition: 0.5s;
+    }
+    .list-item:nth-child(2) { background-image: url("imges/26.png") ; }
+    .list-item:nth-child(3) { background-image: url("imges/27.png") ; }
+    .list-item:nth-child(4) { background-image: url("imges/28.png") ; }
+    .list-item:nth-child(5) { background-image: url("imges/29.png") ; }
+    .list-item:nth-child(6) { background-image: url("imges/30.png") ; }
+    /* 鼠标悬停时 */
+    .list-item:hover {
+        background-position: 50% 0%;
+    }
+    /* svg 边框特效 */
+    svg {
+        width: 430px; height: 210px;
+        /*background-color: #00f; /*看svg范围*/
+    }
+    polyline {
+        stroke: #fa8;
+        fill: none;  /* 不填充 */
+        stroke-dasharray: 1200px;   /* 线段总长度 */
+        stroke-dashoffset: 1200px;   /* 线段未绘制长度 */
+        stroke-width: 2px;   /*线段的宽度*/
+    }
+    .list-item:hover polyline {
+        stroke-dashoffset: 0;
+    }
+    </style>
 </head>
 <body>
-    <div>
-        <img src="imges/25.png" alt="">
-        <img src="imges/26.png" alt="">
-        <img src="imges/27.png" alt="">
-        <img src="imges/28.png" alt="">
-        <img src="imges/29.png" alt="">
-        <img src="imges/30.png" alt="">
+   <!-- div+css布局 -->
+    <div id="father">
+        <div class="top">
+            <div id="one"  >
+                <img src="imges/1.png" alt="" data-id=1>
+            </div>
+            <div id="two">
+                <img src="imges/2.png" alt="" data-id=2 >
+            </div>
+            <div id="three">
+                 <img src="imges/3.png" alt="" data-id=3 >
+            </div>
+            <div id="four">
+                <img src="imges/4.png" alt="" data-id=4 >
+            </div>
+        </div>
+    </div> 
+    <div id="box">
+        <img src="imges/11.png" alt="">
     </div>
+    <!-- ul布局 -->
+    <div class="rolelist">
+        <ul class="lists">
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+            <li class="list-item">
+                <svg>
+                    <polyline points="10,10 420,10 420,190 10,190 10,10">   <!--x y 轴-->
+                </svg>
+            </li>
+        </ul>
+    </div>
+    <script>
+        var img;
+        // 点击事件 父级元素 冒泡 e.target事件
+        document.getElementsByClassName("top")[0].onclick = function (e){
+            document.getElementById("box").style.display = "block";
+            console.log(e.target.dataset.id);
+            img = e.target.dataset.id;
+            document.querySelector("#box img").src = `imges/${img}${img}.png`;
+        }
+    </script>
 </body>
 </html>
