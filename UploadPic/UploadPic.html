@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>拖拽图片上传</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        li { list-style: none; }
+        /* 整个框架的布局样式 */
+        #frame {
+            width: 1100px;
+            height: auto;
+            margin: 50px auto;
+        }
+        /* 标题设置 */
+        #frame h1 {
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 30px;
+        }
+        /* 拖拽区域设施 */
+        #area {
+            height: 200px;
+            width: 100%;
+            background-color: #ace;
+            font-size: 26px;
+            text-align: center;
+            line-height: 200px;
+        }
+        .mid {
+            height: 100px;
+            width: 100%;         
+        }
+        .mid .left {
+            display: block;
+            float: left;
+            height: 100%;
+            line-height: 100px;
+            margin-left: 30px;
+        }
+        .mid .right {
+            float: right;
+            margin-right: 30px;
+        }
+        .right p {
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            margin-top: 30px;
+            border-radius: 5px;
+            color: #fff;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;      /* 小手 */
+        }
+        .select {
+            background-color: #999;
+        }
+        .trans {
+            background-color: #9c5;
+            margin-left: 10px;
+        }
+        .pic { width: 100% }
+        /* .pic .info { display: none; } */
+        .text {
+            position: absolute;  /* 绝对定位 */
+            width: 100%;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            background-color: rgba(0,0,0,.5);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="frame">
+        <h1>图片拖拽上传</h1>
+        <div id="area">将图片拖拽到此区域</div>
+        <div class="mid">
+            <p class="left">已选中<span>0</span>张图片，共<span>0.00</span>KB</p>
+            <div class="right">
+                <input type="file">
+                <p class="select">继续上传</p>
+                <p class="trans">开始上传</p>
+            </div>
+        </div>
+    </div>
+    <div class="pic">
+        <ul id="ul">
+            <li>
+                <div class="info">
+                    <p class="text">1.jpg</p>
+                    <p class="delete">X</p>
+                </div>
+                <img src="img/plant7.jpg" alt="">
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
