@@ -55,15 +55,15 @@
             line-height: 30px;
             cursor: pointer;      /* 小手 */
         }
-        .select {
+        .right .select {
             background-color: #999;
         }
-        .trans {
+        .right .trans {
             background-color: #9c5;
             margin-left: 10px;
         }
         .pic { width: 100% }
-        /* .pic .info { display: none; } */
+        /* .pic .info { display: none; }  */
         .text {
             position: absolute;  /* 绝对定位 */
             width: 100%;
@@ -72,6 +72,22 @@
             line-height: 20px;
             background-color: rgba(0,0,0,.5);
             color: #fff;
+        }
+        li img {
+            width: 200px; 
+            height: 200px;
+        }
+        li:hover .info {
+            display: block;
+        }
+        li .delete　{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background-color: #f66;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -99,5 +115,425 @@
             </li>
         </ul>
     </div>
+    <script>
+    (function(){
+        var oArea = document.getElementById("area"),
+            oUl = document.getElementById("ul"),
+            oSpan = document.querySelectorAll("#frame .left span"),
+            oSelect = document.querySelector("#frame .right .select"),
+            oTrans = document.querySelector("#fram .right .trans");
+        var list = document.querySelectorAll("#frame .pic .delete");
+        var size = 0,
+            sizeArr = [],
+            filesArr = [],
+            num = 0;
+        var j = 0, k = 0;
+        //ondragenter事件在拖动的元素或选择的文本进入到有效的放置目标时触发
+        oArea.ondragenter = function(){
+            this.innerHTML = "请松开鼠标";
+        }
+        //ondragover当某被拖动的对象在另一个对象容器范围内拖动时触发此事件
+        oArea.ondragover = function(e){
+            e.preventDefault();     //该方法将通知web浏览器不要执行与事件关联的默认动作（如果存在这样的动作）
+            e.stopPropagation();    //该方法将停止事件的传播，阻止它被分派到其他Document节点。
+        }
+        //放下拖拽时间
+        oArea.ondrag = function(e){
+            var files = e.dataTransfer.files;
+            this.innerHTML = "请将图片拖拽到此区域";
+            fn(files, true);
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        //选择准备上传文件
+        oSelect.onclick = function(){
+            var oFile = document.querySelector("#frame .right .hidden");
+            oFile.click();
+            oFile.onchange = function(){
+                fn(oFile.files, false);
+            };
+        };
+        //上传文件点击事件
+        oTrans.onclick = function () {
+                var length = filesArr.length;
+                if (length) {
+                    for (var i = 0; i < filesArr.length; i++) {
+                        var ajax = new XMLHttpRequest();
+
+                        var upload = ajax.upload;
+                        upload.onprogress = function (event) {
+                            console.log("已加载" + event.loaded , "总加载" + event.total);
+                        };
+                        ajax.onload = function () {
+
+                        };
+                        //            ajax.onreadystatechange = function () {
+                        //
+                        //            } 同上，上者H5推荐代替下着
+                        ajax.open("post","other/postFile.php",true);
+                        // 1 构建FormData对象 提交数据
+                        var formData = new FormData;
+                        // 2 通过append对象 注入到 formData 对象里
+                        formData.append("file",filesArr[i]);
+                        console.log(filesArr[i]);
+                        // 3 通过ajax 把formData 对象 发送到后端
+                        ajax.send(formData);
+                    }
+                }else {
+                    alert("请选择文件");
+                }
+            };
+            //添加图片函数
+            function fn(files , bool) {
+                var length = files.length;
+                var aa = 0;//计算加载次数
+                for (var i = 0; i < length; i++) {
+                    if (files[i].name) {
+                        var read = new FileReader();
+                        read.readAsDataURL(files[i]);
+                        read.i = i;
+                        //选择文件上传时onload会按文件大小从小到大的顺序依次加载，拖拽则顺序加载
+                        read.onload = function () {
+                            aa++;
+                            var list = document.createElement("li"),
+                                info = document.createElement("div"),
+                                text = document.createElement("p"),
+                                del = document.createElement("p"),
+                                img = new Image();
+                            filesArr[num] = files[this.i];
+//                            console.log("删除前：",filesArr,"num=",num);
+                            sizeArr[num] = ((files[this.i].size) / 1024).toFixed(2) * 1;
+                            size += sizeArr[num];
+                            oSpan[0].innerHTML = ++num;
+                            oSpan[1].innerHTML = (size).toFixed(2);
+                            text.className = "text";
+                            text.innerHTML = files[this.i].name;
+                            info.appendChild(text);
+                            del.className = "delete";
+                            info.appendChild(del);
+                            info.className = "info";
+                            list.appendChild(info);
+                            img.src = this.result;
+                            list.appendChild(img);
+                            oUl.appendChild(list);
+                            //bool拖拽时为真，点击按钮上传为假
+                            if (this.i == length - 1 && bool) {
+                                click();
+                            }
+                            if (aa == length && !bool) {
+                                click();
+                            }
+                        }
+                    }
+                }
+            }
+            //点击删除事件
+            function click() {
+                var list = document.querySelectorAll("#frame .pic .delete");
+                var length = list.length;
+                console.log(length);
+                if (length) {
+                    for (var i = 0; i < length; i++) {
+                        list[i].i = i;
+
+                        list[i].onclick = function () {
+                            oUl.removeChild(this.parentNode.parentNode);
+                            size -= sizeArr[this.i];
+                            sizeArr.splice(this.i,1);
+                            filesArr.splice(this.i,1);
+//                            console.log("删除后",filesArr);
+                            if (size <= 0) {
+                                size = 0;
+                            }
+                            oSpan[0].innerHTML = --num;
+                            oSpan[1].innerHTML = (size).toFixed(2);
+                            var list = document.querySelectorAll("#frame .pic .delete");
+                            var length = list.length;
+                            for (var i = 0; i < length; i++) {
+                                list[i].i = i;
+                            }
+                        }
+                    }
+                }
+            }
+    })();
+    </script>
 </body>
 </html>
+
+
+        
+        
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>html</title>
+    <style>
+        *{
+            padding: 0px;
+            margin: 0px;
+        }
+        li{
+            list-style: none;
+        }
+        #frame{
+            width: 1100px;
+            height: auto;
+            margin: 50px auto;
+        }
+        #frame h1{
+            display: block;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 26px;
+        }
+        #frame #area{
+            height: 200px;
+            width: 100%;
+            background-color: #ccc;
+            font-size: 18px;
+            text-align: center;
+            line-height: 200px;
+        }
+        #frame .mid{
+            height: 100px;
+            width: 100%;
+        }
+        #frame .mid .left{
+            display: block;
+            float: left;
+            height: 100%;
+            line-height: 100px;
+            margin-left: 50px;
+        }
+        #frame .right{
+            float: right;
+            height: 100px;
+            margin-right: 20px;
+        }
+        #frame .right p{
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            margin-top: 35px;
+            border-radius: 5px;
+            color: #fff;
+            line-height: 30px;
+            text-align: center;
+            cursor: pointer;
+        }
+        #frame .right p.select{
+            background-color: #ccc;
+        }
+        #frame .right p.trans{
+            background-color: #60c000;
+            margin-left: 10px;
+        }
+        #frame .pic li{
+            position: relative;
+            float: left;
+            width: 200px;
+            margin-right: 15px;
+        }
+        #frame .pic{
+            width: 100%;
+        }
+        #frame .pic .info{
+            display: none;
+        }
+        #frame .pic li .text{
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            background-color: rgba(0,0,0,.5);
+            color: #fff;
+        }
+        #frame .pic li img{
+            width: 200px;
+            height: 200px;
+        }
+        #frame .pic li:hover .info{
+            display: block;
+        }
+        #frame .pic li .delete{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: red url("img/delete.png") no-repeat center center/cover;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="frame">
+        <h1>图片拖拽上传示范</h1>
+        <div id="area">请将图片拖拽到此区域</div>
+        <div class="mid">
+            <p class="left">已选中<span>0</span>张图片，共<span>0.00</span>KB</p>
+            <div class="right">
+                <input style="display: none;" class="hidden" type="file" value="继续选择" multiple>
+                <p class="select">继续选择</p>
+                <p class="trans">开始上传</p>
+            </div>
+        </div>
+        <div class="pic">
+            <ul id="ul">
+                <!--<li>-->
+                    <!--<div class="info">-->
+                        <!--<p class="text">1.jpg</p>-->
+                        <!--<p class="delete"></p>-->
+                    <!--</div>-->
+                    <!--<img src="img/mp3.png" alt="">-->
+                <!--</li>-->
+ <!--           </ul>
+        </div>
+    </div>
+    <script>
+        (function () {
+            var oArea = document.getElementById("area"),
+                 oUl = document.getElementById("ul"),
+                 oSpan = document.querySelectorAll("#frame .left span"),
+                 oSelect = document.querySelector("#frame .right .select"),
+                 oTrans = document.querySelector("#frame .right .trans");
+            var list = document.querySelectorAll("#frame .pic .delete");
+            var size = 0,
+                 sizeArr = [],
+                 filesArr = [],
+                 num = 0;
+            var j = 0,k = 0;
+						     //ondragenter事件在拖动的元素或选择的文本进入到有效的放置目标时触发
+            oArea.ondragenter = function () {
+                this.innerHTML = "请松开鼠标";
+            };
+            oArea.ondragover = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            //放下拖拽事件
+            oArea.ondrop = function (e) {
+                var files = e.dataTransfer.files;
+                this.innerHTML = "请将图片拖拽到此区域";
+                fn(files , true);
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            //选择准备上传文件
+            oSelect.onclick = function () {
+                var oFile = document.querySelector("#frame .right .hidden");
+                oFile.click();
+                oFile.onchange = function () {
+                    fn(oFile.files , false);
+                };
+            };
+            //上传文件点击事件
+            oTrans.onclick = function () {
+                var length = filesArr.length;
+                if (length) {
+                    for (var i = 0; i < filesArr.length; i++) {
+                        var ajax = new XMLHttpRequest();
+
+                        var upload = ajax.upload;
+                        upload.onprogress = function (event) {
+                            console.log("已加载" + event.loaded , "总加载" + event.total);
+                        };
+                        ajax.onload = function () {
+
+                        };
+                        //            ajax.onreadystatechange = function () {
+                        //
+                        //            } 同上，上者H5推荐代替下着
+                        ajax.open("post","other/postFile.php",true);
+                        // 1 构建FormData对象 提交数据
+                        var formData = new FormData;
+                        // 2 通过append对象 注入到 formData 对象里
+                        formData.append("file",filesArr[i]);
+                        console.log(filesArr[i]);
+                        // 3 通过ajax 把formData 对象 发送到后端
+                        ajax.send(formData);
+                    }
+                }else {
+                    alert("请选择文件");
+                }
+            };
+            //添加图片函数
+            function fn(files , bool) {
+                var length = files.length;
+                var aa = 0;//计算加载次数
+                for (var i = 0; i < length; i++) {
+                    if (files[i].name) {
+                        var read = new FileReader();
+                        read.readAsDataURL(files[i]);
+                        read.i = i;
+                        //选择文件上传时onload会按文件大小从小到大的顺序依次加载，拖拽则顺序加载
+                        read.onload = function () {
+                            aa++;
+                            var list = document.createElement("li"),
+                                info = document.createElement("div"),
+                                text = document.createElement("p"),
+                                del = document.createElement("p"),
+                                img = new Image();
+                            filesArr[num] = files[this.i];
+//                            console.log("删除前：",filesArr,"num=",num);
+                            sizeArr[num] = ((files[this.i].size) / 1024).toFixed(2) * 1;
+                            size += sizeArr[num];
+                            oSpan[0].innerHTML = ++num;
+                            oSpan[1].innerHTML = (size).toFixed(2);
+                            text.className = "text";
+                            text.innerHTML = files[this.i].name;
+                            info.appendChild(text);
+                            del.className = "delete";
+                            info.appendChild(del);
+                            info.className = "info";
+                            list.appendChild(info);
+                            img.src = this.result;
+                            list.appendChild(img);
+                            oUl.appendChild(list);
+                            //bool拖拽时为真，点击按钮上传为假
+                            if (this.i == length - 1 && bool) {
+                                click();
+                            }
+                            if (aa == length && !bool) {
+                                click();
+                            }
+                        }
+                    }
+                }
+            }
+            //点击删除事件
+            function click() {
+                var list = document.querySelectorAll("#frame .pic .delete");
+                var length = list.length;
+                console.log(length);
+                if (length) {
+                    for (var i = 0; i < length; i++) {
+                        list[i].i = i;
+
+                        list[i].onclick = function () {
+                            oUl.removeChild(this.parentNode.parentNode);
+                            size -= sizeArr[this.i];
+                            sizeArr.splice(this.i,1);
+                            filesArr.splice(this.i,1);
+//                            console.log("删除后",filesArr);
+                            if (size <= 0) {
+                                size = 0;
+                            }
+                            oSpan[0].innerHTML = --num;
+                            oSpan[1].innerHTML = (size).toFixed(2);
+                            var list = document.querySelectorAll("#frame .pic .delete");
+                            var length = list.length;
+                            for (var i = 0; i < length; i++) {
+                                list[i].i = i;
+                            }
+                        }
+                    }
+                }
+            }
+        })();
+    </script>
+</body>
+</html> -->
